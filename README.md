@@ -7,6 +7,21 @@ Time manager for roguelikes
 ## Example usage
 ```js
 var TimeManager = require('rl-time-manager');
+
+function tick() {
+	return 5; // Cost of whatever was done this tick, can be an arbitrary integer
+}
+
+var timeManager = new TimeManager(),
+	monster1	= { tick: tick, tickRate: 10 },
+	monster2	= { tick: tick, tickRate: 5 };
+
+// Tick rates of stuff is also an arbitrary integer
+
+timeManager.add(monster1, monster2);
+
+// call timeManager.tick(cb) several times (it's async, returns a promise or uses a callback)
+// Actor turn order: #1, #1, #2, #1, #1, #2, ...
 ```
     
 ## License
