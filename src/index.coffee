@@ -41,3 +41,21 @@ module.exports = class TimeManager
 			.nodeify callback
 
 		else process.nextTick callback
+
+	tickSync: ->
+		if @targets.length > 0
+			[..., target] = @targets
+
+			cost = target.tick?() ? target.tickSync()
+			rate = _.result target, 'tickRate'
+
+			# rate > 0 means this target should be scheduled again
+			if rate > 0
+				@adjustNextTicks -target.nextTick
+				target.nextTick = cost / rate
+
+			# otherwise, if 0, it should never be scheduled
+			# AKA an infinite amount of time until next schedule
+			else target.nextTick = Infinity
+
+			@add @targets.pop() if rate is 0 or cost isnt 0
