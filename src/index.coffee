@@ -24,20 +24,9 @@ module.exports = class TimeManager
 			[..., target] = @targets
 
 			@wrapPromise target.tick()
-			.then (cost = 0) =>
-				rate = _.result target, 'tickRate'
 
-				# rate > 0 means this target should be scheduled again
-				if rate > 0
-					@adjustNextTicks -target.nextTick
-					target.nextTick = cost / rate
-
-				# otherwise, if 0, it should never be scheduled
-				# AKA an infinite amount of time until next schedule
-				else target.nextTick = Infinity
-
-				@add @targets.pop() if rate is 0 or cost isnt 0
-
+			.then (cost = 0) => scheduleNext target, cost
+			
 			.nodeify callback
 
 		else process.nextTick callback
@@ -47,15 +36,19 @@ module.exports = class TimeManager
 			[..., target] = @targets
 
 			cost = target.tick?() ? target.tickSync()
-			rate = _.result target, 'tickRate'
 
-			# rate > 0 means this target should be scheduled again
-			if rate > 0
-				@adjustNextTicks -target.nextTick
-				target.nextTick = cost / rate
+			scheduleNext target, cost
 
-			# otherwise, if 0, it should never be scheduled
-			# AKA an infinite amount of time until next schedule
-			else target.nextTick = Infinity
+	scheduleNext: (target, cost = 0) ->
+		rate = _.result target, 'tickRate'
 
-			@add @targets.pop() if rate is 0 or cost isnt 0
+		# rate > 0 means this target should be scheduled again
+		if rate > 0
+			@adjustNextTicks -target.nextTick
+			target.nextTick = cost / rate
+
+		# otherwise, if 0, it should never be scheduled
+		# AKA an infinite amount of time until next schedule
+		else target.nextTick = Infinity
+
+		@add @targets.pop() if rate is 0 or cost isnt 0
