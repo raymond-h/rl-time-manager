@@ -25,8 +25,8 @@ module.exports = class TimeManager
 
 			@wrapPromise target.tick()
 
-			.then (cost = 0) => scheduleNext target, cost
-			
+			.then (cost = 0) => @scheduleNext target, cost
+
 			.nodeify callback
 
 		else process.nextTick callback
@@ -37,7 +37,7 @@ module.exports = class TimeManager
 
 			cost = target.tick?() ? target.tickSync()
 
-			scheduleNext target, cost
+			@scheduleNext target, cost
 
 	scheduleNext: (target, cost = 0) ->
 		rate = _.result target, 'tickRate'
