@@ -1,8 +1,10 @@
 _ = require 'lodash'
 Promise = require 'bluebird'
 
+wrapPromise = Promise.resolve.bind(Promise)
+
 module.exports = class TimeManager
-	constructor: ->
+	constructor: (@wrapPromise = wrapPromise) ->
 		@targets = []
 
 	add: (targets...) ->
@@ -21,7 +23,7 @@ module.exports = class TimeManager
 		if @targets.length > 0
 			[..., target] = @targets
 
-			Promise.resolve target.tick()
+			@wrapPromise target.tick()
 			.then (cost = 0) =>
 				rate = _.result target, 'tickRate'
 
