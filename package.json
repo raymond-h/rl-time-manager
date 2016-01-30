@@ -1,7 +1,7 @@
 {
   "name": "rl-time-manager",
   "description": "Time manager for roguelikes",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "license": "MIT",
   "main": "lib/index.js",
   "author": "Raymond Hammarling",
