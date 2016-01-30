@@ -20,8 +20,8 @@ module.exports = class TimeManager
 		(t.nextTick += add) for t in @targets
 
 	tick: (callback) ->
-		if @targets.length > 0
-			[..., target] = @targets
+		if @next()?
+			target = @next()
 
 			@wrapPromise target.tick()
 
@@ -32,14 +32,23 @@ module.exports = class TimeManager
 		else process.nextTick callback
 
 	tickSync: ->
-		if @targets.length > 0
-			[..., target] = @targets
+		if @next()?
+			target = @next()
 
 			cost = target.tick?() ? target.tickSync()
 
 			@scheduleNext target, cost
 
+	next: -> _.last @targets
+
 	scheduleNext: (target, cost = 0) ->
+		if _.isNumber target
+			cost = target
+			target = null
+
+		if not target?
+			target = @next()
+
 		rate = _.result target, 'tickRate'
 
 		# rate > 0 means this target should be scheduled again
